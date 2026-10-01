@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Spielzeugladen — Rechnen mit Geld | Förderfreude Games</title>
+<style>
+  :root{
+    --cream:#faf3e7;
+    --cream-dark:#eeddc2;
+    --ink:#3a3226;
+    --muted:#7a7062;
+    --panel:#fffcf5;
+    --panel-edge:rgba(58,50,38,.16);
+    --altrosa:#d98a92;
+    --altrosa-dark:#b06670;
+    --salbei:#8fa888;
+    --salbei-dark:#6d8768;
+    --gelb:#eec14a;
+    --gelb-dark:#c99a1f;
+    --terrakotta:#d97e55;
+    --terrakotta-dark:#b45e39;
+    --hellblau:#8fb9c9;
+    --hellblau-dark:#5f93a6;
+    --wood:#c99a6c;
+    --wood-dark:#a97a4d;
+    --font-display: ui-rounded, 'Segoe UI Rounded', 'SF Pro Rounded', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; padding:0; height:100%; overscroll-behavior:none; }
+  body{
+    font-family:var(--font-body);
+    background:linear-gradient(180deg, #f3ecdd 0%, var(--cream) 100%);
+    color:var(--ink);
+    height:100vh; height:100dvh;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    user-select:none; -webkit-user-select:none;
+  }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; padding:0; color:inherit; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
+
+  header{ flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:1.2vh 3vw 0.4vh; gap:2vw; z-index:5; position:relative; }
+  .brand{ font-family:var(--font-display); font-weight:800; font-size:clamp(13px,2vw,18px); color:var(--ink); display:flex; align-items:center; gap:1.2vw; }
+  .header-btns{ display:flex; gap:2vw; }
+  .icon-btn{
+    width:clamp(34px,4.4vw,44px); height:clamp(34px,4.4vw,44px);
+    border-radius:50%; background:var(--panel); border:1.6px solid var(--panel-edge);
+    display:flex; align-items:center; justify-content:center; font-size:clamp(15px,1.9vw,19px);
+    transition:transform .1s ease;
+  }
+  .icon-btn:active{ transform:scale(.9); }
+  .icon-btn[aria-pressed="false"]{ opacity:.5; }
+  .icon-btn:focus-visible{ outline:3px solid var(--hellblau-dark); outline-offset:2px; }
+  .back-btn{
+    display:flex; align-items:center; gap:1vw; font-family:var(--font-display); font-weight:700;
+    font-size:clamp(12px,1.6vw,14px); color:var(--ink); background:var(--panel);
+    border:1.6px solid var(--panel-edge); border-radius:999px; padding:.9vh 3vw;
+  }
+  .back-btn:active{ transform:scale(.95); }
+
+  .screen{ flex:1; min-height:0; display:flex; flex-direction:column; align-items:center; }
+  .screen[hidden]{ display:none; }
+  .screen-center{ justify-content:center; }
+
+  /* ---------- Start ---------- */
+  #screen-start{ width:100%; overflow-y:auto; padding:1vh 4vw 3vh; gap:0; }
+  .title-big{ font-family:var(--font-display); font-weight:800; font-size:clamp(24px,4.4vw,40px); color:var(--terrakotta-dark); margin:1vh 0 0; text-align:center; }
+  .subtitle-big{ font-family:var(--font-display); font-weight:700; font-size:clamp(13px,2vw,17px); color:var(--ink); margin:.3vh 0; text-align:center; }
+  .intro-line{ font-size:clamp(12px,1.7vw,15px); color:var(--muted); font-weight:600; margin:0 0 2vh; text-align:center; }
+
+  .mode-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:2.2vw;
+    width:100%; max-width:980px; margin:0 auto;
+  }
+  .mode-card{
+    background:var(--panel); border:2.4px solid var(--panel-edge); border-radius:18px;
+    padding:2vh 2vw; display:flex; flex-direction:column; align-items:center; gap:1vh;
+    box-shadow:0 5px 0 rgba(58,50,38,.12); transition:transform .1s ease;
+    min-height:150px; justify-content:center;
+  }
+  .mode-card:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(58,50,38,.12); }
+  .mode-card .mode-icon{ width:52px; height:52px; }
+  .mode-card .mode-icon svg{ width:100%; height:100%; display:block; }
+  .mode-card .mode-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(13px,1.8vw,16px); color:var(--ink); text-align:center; }
+  .mode-card .mode-sub{ font-size:clamp(10px,1.3vw,11.5px); color:var(--muted); font-weight:600; text-align:center; }
+  .mode-card.c-m1{ border-color:var(--gelb-dark); } .mode-card.c-m1 .mode-icon svg .coin-ring{ fill:var(--gelb); }
+  .mode-card.c-m2{ border-color:var(--salbei-dark); }
+  .mode-card.c-m3{ border-color:var(--hellblau-dark); }
+  .mode-card.c-m4{ border-color:var(--terrakotta-dark); }
+  .mode-card.c-m5{ border-color:var(--altrosa-dark); }
+  .mode-card.c-m6{ border-color:var(--wood-dark); }
+  .mode-card.c-m7{ border-color:var(--gelb-dark); }
+  .mode-card.c-m8{ border-color:var(--terrakotta-dark); }
+  .brand-footer{ font-size:clamp(10px,1.3vw,12px); color:var(--muted); font-weight:700; text-align:center; margin-top:2.4vh; }
+
+  /* ---------- Unterauswahl ---------- */
+  #screen-sub{ gap:2vh; padding:2vh 4vw; }
+  .sub-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(19px,3vw,26px); color:var(--terrakotta-dark); text-align:center; }
+  .sub-choices{ display:flex; gap:2.6vw; flex-wrap:wrap; justify-content:center; max-width:700px; }
+  .sub-card{
+    background:var(--panel); border:2.6px solid var(--panel-edge); border-radius:16px;
+    padding:2.4vh 4vw; min-width:150px; box-shadow:0 5px 0 rgba(58,50,38,.14);
+    font-family:var(--font-display); font-weight:800; font-size:clamp(14px,2vw,18px); color:var(--ink);
+    display:flex; flex-direction:column; align-items:center; gap:.8vh; transition:transform .1s ease;
+  }
+  .sub-card:active{ transform:translateY(3px); box-shadow:0 2px 0 rgba(58,50,38,.14); }
+  .sub-card .sub-icon{ font-size:28px; }
+
+  /* ---------- Spiel ---------- */
+  #screen-game{ width:100%; gap:0.6vh; padding:0 3vw 1.4vh; }
+  .progress-row{ flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:1.6vw; padding-top:.4vh; }
+  .progress-baskets{ display:flex; gap:1vw; }
+  .basket-icon{ width:clamp(16px,2.6vw,22px); height:clamp(16px,2.6vw,22px); opacity:.28; transition:opacity .3s ease, transform .3s ease; }
+  .basket-icon.lit{ opacity:1; transform:scale(1.12); }
+  .progress-num{ font-family:var(--font-display); font-weight:800; font-size:clamp(11px,1.6vw,15px); color:var(--ink); background:var(--panel); border:1.6px solid var(--panel-edge); border-radius:999px; padding:.4vh 3vw; }
+
+  .task-wrap{ flex:1; min-height:0; width:100%; display:flex; align-items:center; justify-content:center; padding:0.2vh 0; }
+  .task-stage{
+    position:relative; overflow:hidden; border-radius:24px; width:100%; height:100%;
+    background:var(--panel);
+    box-shadow:0 10px 26px -14px rgba(58,50,38,.35);
+    display:flex; flex-direction:column; align-items:center;
+    padding:1.2vh 3vw 1.4vh; gap:0.7vh;
+  }
+  .stage-glow{ position:absolute; inset:0; opacity:.08; pointer-events:none; z-index:0; }
+
+  .prompt-row{ flex-shrink:0; display:flex; align-items:center; gap:2vw; position:relative; z-index:1; }
+  .prompt-text{ font-family:var(--font-display); font-weight:800; font-size:clamp(16px,2.6vw,23px); color:var(--ink); text-align:center; }
+  .speak-btn{
+    flex-shrink:0; width:clamp(32px,4.2vw,40px); height:clamp(32px,4.2vw,40px); border-radius:50%;
+    background:#fdf3d6; border:2px solid var(--gelb-dark); color:var(--gelb-dark);
+    display:flex; align-items:center; justify-content:center; font-size:clamp(13px,1.9vw,17px);
+    transition:transform .1s ease;
+  }
+  .speak-btn:active{ transform:scale(.9); }
+
+  .task-body{ flex:1; min-height:0; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0.8vh; overflow:hidden; position:relative; z-index:1; }
+
+  .feedback-msg{
+    flex-shrink:0; font-family:var(--font-display); font-weight:700; font-size:clamp(13px,1.9vw,16px);
+    color:var(--altrosa-dark); text-align:center; min-height:1.8em; opacity:0; transition:opacity .2s ease; position:relative; z-index:1;
+  }
+  .feedback-msg.show{ opacity:1; }
+  .feedback-msg.good{ color:var(--salbei-dark); }
+
+  /* Geld-Anzeige (Muenzen/Scheine als Aufgabe) */
+  .money-display-row{ display:flex; gap:1.6vw; flex-wrap:wrap; justify-content:center; align-items:center; max-width:600px; }
+
+  /* Muenzen */
+  .coin{
+    border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column;
+    font-family:var(--font-display); font-weight:800; color:#5a4315; position:relative; flex-shrink:0;
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,.14), 0 2px 3px rgba(58,50,38,.25);
+  }
+  .coin .coin-val{ line-height:1; }
+  .coin .coin-unit{ font-size:.42em; font-weight:700; line-height:1; margin-top:1px; }
+  .coin.copper{ background:radial-gradient(circle at 35% 30%, #e3b27a, #c98f52); color:#5a3a15; }
+  .coin.gold{ background:radial-gradient(circle at 35% 30%, #fbe08a, #e0b84a); border:3px solid #c99a1f; color:#5a4315; }
+  .coin.bi1{ background:radial-gradient(circle at 50% 50%, #e0b84a 0 55%, #e8e2d0 56% 100%); border:3px solid #b8b0a0; color:#4a3a15; }
+  .coin.bi2{ background:radial-gradient(circle at 50% 50%, #e8e2d0 0 55%, #e0b84a 56% 100%); border:3px solid #c99a1f; color:#4a3a15; }
+
+  /* Scheine */
+  .bill{
+    border-radius:8px; display:flex; align-items:center; justify-content:center; flex-direction:column;
+    font-family:var(--font-display); font-weight:800; color:#fff; flex-shrink:0; position:relative;
+    box-shadow:0 3px 4px rgba(58,50,38,.3); border:2px solid rgba(255,255,255,.5);
+  }
+  .bill::before{ content:''; position:absolute; inset:4px; border:1.5px dashed rgba(255,255,255,.5); border-radius:5px; }
+  .bill .bill-val{ line-height:1; position:relative; z-index:1; }
+  .bill .bill-unit{ font-size:.4em; font-weight:700; margin-top:1px; position:relative; z-index:1; }
+  .bill.b5{ background:linear-gradient(135deg,#9bb8a8,#7d9c8c); }
+  .bill.b10{ background:linear-gradient(135deg,#d98a92,#b0666f); }
+  .bill.b20{ background:linear-gradient(135deg,#8fb9c9,#5f93a6); }
+  .bill.b50{ background:linear-gradient(135deg,#eec14a,#c99a1f); }
+
+  .choice-row{ display:flex; gap:2vw; flex-wrap:wrap; justify-content:center; max-width:600px; }
+  .choice-card{
+    background:var(--panel); border:3px solid var(--panel-edge); border-radius:14px;
+    padding:1.4vh 5vw; display:flex; flex-direction:column; align-items:center; gap:.4vh;
+    box-shadow:0 4px 0 rgba(58,50,38,.12); transition:transform .1s ease;
+    min-width:80px; font-family:var(--font-display); font-weight:800; font-size:clamp(16px,2.6vw,21px); color:var(--ink);
+  }
+  .choice-card:active{ transform:translateY(3px); }
+  .choice-card.wrong-shake{ animation:shake .4s ease; border-color:var(--altrosa-dark); }
+  .choice-card.correct-pulse{ animation:pulse .5s ease; border-color:var(--salbei-dark); background:#e3efdd; }
+  .choice-card:focus-visible{ outline:3px solid var(--hellblau-dark); outline-offset:2px; }
+
+  @keyframes shake{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-6px); } 75%{ transform:translateX(6px); } }
+  @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.08); } }
+  @keyframes sparkle{ 0%{ opacity:0; transform:scale(.4) rotate(0deg); } 40%{ opacity:1; } 100%{ opacity:0; transform:scale(1.3) rotate(30deg); } }
+
+  /* Ja/Nein */
+  .yesno-row{ display:flex; gap:4vw; }
+  .yesno-btn{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(18px,3vw,26px);
+    padding:2vh 8vw; border-radius:999px; box-shadow:0 5px 0 rgba(58,50,38,.16); transition:transform .1s ease;
+  }
+  .yesno-btn.yes{ background:#e3efdd; color:var(--salbei-dark); border:3px solid var(--salbei-dark); }
+  .yesno-btn.no{ background:#f7e3e2; color:var(--altrosa-dark); border:3px solid var(--altrosa-dark); }
+  .yesno-btn:active{ transform:translateY(3px); }
+
+  /* Spielzeuge */
+  .toy-icon svg{ width:100%; height:100%; display:block; }
+  .toy-card{
+    display:flex; flex-direction:column; align-items:center; gap:.6vh;
+    background:var(--panel); border:2.4px solid var(--panel-edge); border-radius:14px;
+    padding:1.4vh 1.6vw; position:relative; transition:transform .1s ease, border-color .15s ease;
+  }
+  .toy-card .toy-icon{ width:clamp(48px,7vw,72px); height:clamp(48px,7vw,72px); }
+  .toy-card .toy-price{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(12px,1.8vw,16px); color:var(--ink);
+    background:var(--cream-dark); border-radius:999px; padding:.3vh 2.4vw;
+  }
+  .toy-card.selectable{ cursor:pointer; }
+  .toy-card.selectable:active{ transform:scale(.96); }
+  .toy-card.selected{ border-color:var(--salbei-dark); background:#eaf3e6; }
+  .toy-card.selected::after{
+    content:'✓'; position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+    background:var(--salbei-dark); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800;
+  }
+  .toy-shelf{ display:flex; gap:1.6vw; flex-wrap:wrap; justify-content:center; max-width:700px; }
+  .shelf-board{ width:90%; max-width:640px; height:8px; background:var(--wood-dark); border-radius:3px; margin-top:.4vh; }
+
+  .single-toy-row{ display:flex; align-items:center; gap:4vw; }
+  .single-toy-row .toy-icon{ width:clamp(64px,10vw,96px); height:clamp(64px,10vw,96px); }
+  .single-toy-price{ font-family:var(--font-display); font-weight:800; font-size:clamp(20px,3.2vw,28px); color:var(--terrakotta-dark); }
+
+  /* Bezahle passend */
+  .pay-target{ display:flex; align-items:center; gap:3vw; flex-shrink:0; }
+  .pay-target .toy-icon{ width:clamp(50px,7vw,72px); height:clamp(50px,7vw,72px); }
+  .pay-target .price-tag{ font-family:var(--font-display); font-weight:800; font-size:clamp(18px,2.8vw,25px); color:var(--terrakotta-dark); background:var(--cream-dark); padding:.6vh 3vw; border-radius:999px; }
+
+  .laid-total{ flex-shrink:0; font-family:var(--font-display); font-weight:800; font-size:clamp(14px,2vw,18px); color:var(--ink); }
+  .laid-total .laid-num{ color:var(--salbei-dark); }
+
+  .tresen{
+    flex-shrink:0; width:92%; max-width:560px; min-height:56px; background:var(--wood);
+    border:2px solid var(--wood-dark); border-radius:10px; padding:1vh 1.5vw;
+    display:flex; gap:.8vw; flex-wrap:wrap; align-content:flex-start; align-items:flex-start;
+  }
+  .tresen-empty-hint{ font-size:clamp(10px,1.4vw,12px); color:rgba(58,50,38,.5); font-weight:700; margin:auto; }
+
+  .geldleiste{
+    flex-shrink:0; width:96%; max-width:640px; display:flex; gap:.9vw; flex-wrap:wrap; justify-content:center;
+    padding-top:.4vh;
+  }
+  .geldleiste .money-btn{ transition:transform .1s ease; cursor:pointer; }
+  .geldleiste .money-btn:active{ transform:scale(.9); }
+  .tresen .money-mini{ cursor:pointer; transition:transform .1s ease; }
+  .tresen .money-mini:active{ transform:scale(.85); }
+
+  .pay-btn{
+    flex-shrink:0; font-family:var(--font-display); font-weight:800; font-size:clamp(15px,2.2vw,19px);
+    color:#fff; background:var(--terrakotta-dark); border-radius:999px; padding:1.4vh 8vw;
+    box-shadow:0 5px 0 #8a4726; transition:transform .1s ease, opacity .15s ease;
+    margin-top:.4vh;
+  }
+  .pay-btn:active{ transform:translateY(3px); box-shadow:0 2px 0 #8a4726; }
+  .pay-btn:disabled{ opacity:.45; }
+  .pay-btn-row{ display:flex; gap:2vw; align-items:center; flex-shrink:0; margin-top:.4vh; }
+  .reset-btn{
+    flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:1.2vw;
+    background:var(--panel); border:2.2px solid var(--panel-edge); border-radius:999px;
+    padding:1.4vh 4vw; font-family:var(--font-display); font-weight:700; color:var(--muted);
+    font-size:clamp(12px,1.7vw,15px); transition:transform .1s ease;
+  }
+  .reset-btn:active{ transform:scale(.95); }
+  .reset-btn .reset-icon{ font-size:1.2em; }
+
+  /* Einkaufsauftrag */
+  .auftrag-budget{ font-family:var(--font-display); font-weight:800; font-size:clamp(14px,2.1vw,18px); color:var(--terrakotta-dark); flex-shrink:0; }
+  .auftrag-selection-total{ font-family:var(--font-display); font-weight:700; font-size:clamp(12px,1.7vw,15px); color:var(--muted); flex-shrink:0; }
+
+  /* ---------- Ende ---------- */
+  #screen-end{ gap:1.4vh; text-align:center; padding:2vh 4vw; overflow-y:auto; width:100%; }
+  .end-title{ font-family:var(--font-display); font-weight:800; font-size:clamp(19px,3.4vw,30px); margin:0; color:var(--ink); }
+  .end-sub{ font-family:var(--font-display); font-weight:700; font-size:clamp(13px,1.9vw,17px); color:var(--terrakotta-dark); margin:0; }
+  .end-toys-row{ display:flex; gap:1.6vw; justify-content:center; margin:1vh 0; }
+  .end-toys-row .toy-icon{ width:clamp(40px,6vw,56px); height:clamp(40px,6vw,56px); }
+  .end-actions{ display:flex; gap:3vw; margin-top:.5vh; flex-wrap:wrap; justify-content:center; }
+  .btn-primary{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(13px,1.9vw,16px);
+    color:#fff; background:var(--terrakotta-dark); border-radius:999px; padding:1.7vh 5.2vw;
+    box-shadow:0 8px 18px -8px rgba(180,94,57,.5); transition:transform .1s ease;
+  }
+  .btn-secondary{
+    font-family:var(--font-display); font-weight:800; font-size:clamp(13px,1.9vw,16px);
+    color:var(--ink); background:var(--panel); border:2px solid var(--panel-edge); border-radius:999px; padding:1.7vh 5.2vw;
+    transition:transform .1s ease;
+  }
+  .btn-primary:active, .btn-secondary:active{ transform:scale(.96); }
+
+  @media (max-width:560px){ .end-actions{ flex-direction:column; width:100%; } .pay-target{ gap:4vw; } }
+  @media (max-height:600px){ .mode-card{ min-height:110px; padding:1.2vh 2vw; } .mode-card .mode-icon{ width:38px; height:38px; } }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">🧸 Spielzeugladen</div>
+    <div class="header-btns">
+      <button class="icon-btn" id="btn-sound" aria-label="Ton an/aus" aria-pressed="true">🔊</button>
+    </div>
+  </header>
+
+  <!-- START -->
+  <div class="screen" id="screen-start">
+    <h1 class="title-big">🧸 Spielzeugladen</h1>
+    <p class="subtitle-big">Rechnen mit Geld</p>
+    <p class="intro-line">Such dir aus, was du üben möchtest!</p>
+    <div class="mode-grid" id="mode-grid"></div>
+    <p class="brand-footer">Förderfreude Games</p>
+  </div>
+
+  <!-- UNTERAUSWAHL -->
+  <div class="screen screen-center" id="screen-sub" hidden>
+    <button class="back-btn" id="btn-sub-back" style="position:absolute; left:3vw; top:8vh;">← Zurück</button>
+    <h2 class="sub-title" id="sub-title"></h2>
+    <div class="sub-choices" id="sub-choices"></div>
+  </div>
+
+  <!-- SPIEL -->
+  <div class="screen" id="screen-game" hidden>
+    <div class="progress-row">
+      <button class="back-btn" id="btn-game-back" style="margin-right:auto;">← Zurück</button>
+      <div class="progress-baskets" id="progress-baskets"></div>
+      <div class="progress-num"><span id="progress-count">0</span> von 8</div>
+    </div>
+
+    <div class="task-wrap">
+      <div class="task-stage" id="task-stage">
+        <svg class="stage-glow" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <circle cx="6" cy="94" r="30" fill="var(--salbei)"/>
+          <circle cx="95" cy="4" r="22" fill="var(--altrosa)"/>
+          <circle cx="88" cy="80" r="16" fill="var(--gelb)"/>
+          <circle cx="14" cy="10" r="13" fill="var(--hellblau)"/>
+          <circle cx="50" cy="98" r="10" fill="var(--terrakotta)"/>
+        </svg>
+
+        <div class="prompt-row">
+          <button class="speak-btn" id="btn-speak-task" aria-label="Vorlesen">🔊</button>
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+
+        <div class="task-body" id="task-body"></div>
+
+        <div class="feedback-msg" id="feedback-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENDE -->
+  <div class="screen" id="screen-end" hidden>
+    <div class="end-toys-row" id="end-toys-row"></div>
+    <h2 class="end-title">Geschafft! 🎉</h2>
+    <p class="end-sub">Dein Einkauf ist komplett!</p>
+    <div class="end-actions">
+      <button class="btn-primary" id="btn-again">Noch eine Runde</button>
+      <button class="btn-secondary" id="btn-other-mode">Anderen Modus wählen</button>
+    </div>
+  </div>
+
+<script>
+(function(){
+  "use strict";
+
+  const ROUND_TARGET = 8;
+
+  /* =========================================================
+     GELD-KERNFUNKTIONEN (immer in Cent rechnen)
+     ========================================================= */
+  function centsToEuroString(cents){
+    const sign = cents < 0 ? '-' : '';
+    const abs = Math.abs(Math.round(cents));
+    const euros = Math.floor(abs/100);
+    const rest = abs % 100;
+    if(rest === 0) return `${sign}${euros} €`;
+    return `${sign}${euros},${String(rest).padStart(2,'0')} €`;
+  }
+  function formatMoney(cents){ return centsToEuroString(cents); }
+  function sumMoney(arr){ return arr.reduce((a,b)=>a+b,0); }
+
+  const COIN_VALUES = [1,2,5,10,20,50,100,200];
+  const BILL_VALUES = [500,1000,2000,5000];
+  const EURO_COIN_VALUES = [100,200];
+  const CENT_COIN_VALUES = [1,2,5,10,20,50];
+
+  function coinStyle(v){
+    if(v<=5) return 'copper';
+    if(v<=50) return 'gold';
+    if(v===100) return 'bi1';
+    return 'bi2';
+  }
+  function coinSize(v){
+    if(v===1) return 30; if(v===2) return 32; if(v===5) return 34;
+    if(v===10) return 34; if(v===20) return 37; if(v===50) return 40;
+    if(v===100) return 40; return 44;
+  }
+  function billColorClass(v){
+    if(v===500) return 'b5'; if(v===1000) return 'b10'; if(v===2000) return 'b20'; return 'b50';
+  }
+  function billSize(v){
+    if(v===500) return {w:64,h:34}; if(v===1000) return {w:70,h:36}; if(v===2000) return {w:76,h:38}; return {w:84,h:40};
+  }
+
+  function makeCoinEl(v, opts){
+    opts = opts||{};
+    const size = opts.size || coinSize(v);
+    const el = document.createElement(opts.tag||'div');
+    el.className = 'coin ' + coinStyle(v);
+    el.style.width = size+'px'; el.style.height = size+'px';
+    const isEuro = v>=100;
+    const label = isEuro ? (v/100) : v;
+    const unit = isEuro ? '€' : 'ct';
+    el.innerHTML = `<span class="coin-val" style="font-size:${size*0.34}px">${label}</span><span class="coin-unit">${unit}</span>`;
+    el.dataset.value = v;
+    el.setAttribute('role','img');
+    el.setAttribute('aria-label', isEuro? `${label} Euro Muenze` : `${label} Cent Muenze`);
+    return el;
+  }
+  function makeBillEl(v, opts){
+    opts = opts||{};
+    const sz = opts.size || billSize(v);
+    const el = document.createElement(opts.tag||'div');
+    el.className = 'bill ' + billColorClass(v);
+    el.style.width = sz.w+'px'; el.style.height = sz.h+'px';
+    el.innerHTML = `<span class="bill-val" style="font-size:${sz.h*0.36}px">${v/100}</span><span class="bill-unit">EURO</span>`;
+    el.dataset.value = v;
+    el.setAttribute('role','img');
+    el.setAttribute('aria-label', `${v/100} Euro Schein`);
+    return el;
+  }
+  function makeMoneyEl(v, opts){
+    return v>=500 ? makeBillEl(v,opts) : makeCoinEl(v,opts);
+  }
+
+  /* =========================================================
+     ZUFALLSHELFER
+     ========================================================= */
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+  function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function uniqueMoneyDistractors(correctCents, count, deltaPoolCents, minVal){
+    minVal = minVal===undefined ? 0 : minVal;
+    const opts = new Set([correctCents]);
+    let guard=0;
+    while(opts.size < count+1 && guard<60){
+      guard++;
+      const d = pick(deltaPoolCents);
+      const cand = correctCents + d;
+      if(cand < minVal) continue;
+      opts.add(cand);
+    }
+    let guard2=0;
+    const widerPool = deltaPoolCents.concat(deltaPoolCents.map(d=>d*2));
+    while(opts.size < count+1 && guard2<60){
+      guard2++;
+      const d = pick(widerPool);
+      const cand = correctCents + d;
+      if(cand < minVal || cand===correctCents) continue;
+      opts.add(cand);
+    }
+    return shuffle(Array.from(opts));
+  }
+
+  /* =========================================================
+     SPIELZEUG-POOL (eigene SVG-Icons)
+     ========================================================= */
+  const TOY_DEFS = [
+    { key:'ball', name:'Ball', prices:[300,400,450] },
+    { key:'teddy', name:'Teddy', prices:[600,800,950] },
+    { key:'auto', name:'Auto', prices:[400,600,750] },
+    { key:'puzzle', name:'Puzzle', prices:[500,700,850] },
+    { key:'seil', name:'Springseil', prices:[300,400,550] },
+    { key:'bauklotz', name:'Bauklötze', prices:[800,1000,1250] },
+    { key:'roboter', name:'Roboter', prices:[1000,1500,1950] },
+    { key:'zug', name:'Zug', prices:[1200,1800,2400] },
+  ];
+
+  function toySvg(key){
+    switch(key){
+      case 'ball':
+        return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="4"/>
+          <path d="M50,8 Q66,50 50,92" fill="none" stroke="var(--terrakotta-dark)" stroke-width="4"/>
+          <path d="M50,8 Q34,50 50,92" fill="none" stroke="var(--terrakotta-dark)" stroke-width="4"/>
+          <path d="M10,50 Q50,38 90,50" fill="none" stroke="var(--terrakotta-dark)" stroke-width="4"/></svg>`;
+      case 'teddy':
+        return `<svg viewBox="0 0 100 100"><circle cx="28" cy="24" r="12" fill="#c99a6c"/><circle cx="72" cy="24" r="12" fill="#c99a6c"/>
+          <circle cx="28" cy="24" r="5" fill="#a97a4d"/><circle cx="72" cy="24" r="5" fill="#a97a4d"/>
+          <circle cx="50" cy="42" r="26" fill="#dcb583"/>
+          <circle cx="40" cy="38" r="3.4" fill="#4a3a2a"/><circle cx="60" cy="38" r="3.4" fill="#4a3a2a"/>
+          <circle cx="50" cy="46" r="5" fill="#a97a4d"/>
+          <path d="M44,54 Q50,60 56,54" fill="none" stroke="#4a3a2a" stroke-width="2.4" stroke-linecap="round"/>
+          <ellipse cx="50" cy="80" rx="28" ry="20" fill="#dcb583"/>
+          <circle cx="22" cy="72" r="9" fill="#c99a6c"/><circle cx="78" cy="72" r="9" fill="#c99a6c"/>
+          <circle cx="34" cy="94" r="9" fill="#c99a6c"/><circle cx="66" cy="94" r="9" fill="#c99a6c"/></svg>`;
+      case 'auto':
+        return `<svg viewBox="0 0 100 100"><rect x="10" y="50" width="80" height="24" rx="6" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3"/>
+          <path d="M24,50 L34,32 L66,32 L76,50 Z" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3"/>
+          <rect x="37" y="36" width="11" height="12" fill="#eaf6fa" stroke="var(--hellblau-dark)" stroke-width="2"/>
+          <rect x="52" y="36" width="11" height="12" fill="#eaf6fa" stroke="var(--hellblau-dark)" stroke-width="2"/>
+          <circle cx="28" cy="76" r="11" fill="#3a3226"/><circle cx="28" cy="76" r="4.5" fill="#cfcfcf"/>
+          <circle cx="72" cy="76" r="11" fill="#3a3226"/><circle cx="72" cy="76" r="4.5" fill="#cfcfcf"/></svg>`;
+      case 'puzzle':
+        return `<svg viewBox="0 0 100 100">
+          <path d="M12,12 H46 V26 a8,8 0 0 1 0,14 V50 H12 V36 a8,8 0 0 0 0,-14 Z" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="3"/>
+          <path d="M54,12 H88 V50 H64 a8,8 0 0 1 -14,0 H54 Z" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="3"/>
+          <path d="M12,58 H36 a8,8 0 0 1 14,0 H88 V88 H12 Z" fill="var(--altrosa)" stroke="var(--altrosa-dark)" stroke-width="3"/></svg>`;
+      case 'seil':
+        return `<svg viewBox="0 0 100 100"><circle cx="18" cy="30" r="10" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+          <circle cx="82" cy="30" r="10" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+          <path d="M18,40 Q30,55 42,50 Q54,45 50,62 Q46,78 62,72 Q78,66 82,40" fill="none" stroke="var(--gelb-dark)" stroke-width="5" stroke-linecap="round"/></svg>`;
+      case 'bauklotz':
+        return `<svg viewBox="0 0 100 100"><rect x="14" y="56" width="28" height="28" rx="3" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+          <rect x="46" y="56" width="28" height="28" rx="3" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3"/>
+          <rect x="30" y="24" width="28" height="28" rx="3" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="3"/>
+          <rect x="62" y="40" width="20" height="20" rx="3" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="3"/></svg>`;
+      case 'roboter':
+        return `<svg viewBox="0 0 100 100"><rect x="38" y="10" width="24" height="6" fill="var(--muted)"/><circle cx="50" cy="8" r="4" fill="var(--altrosa)"/>
+          <rect x="28" y="16" width="44" height="32" rx="8" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="3"/>
+          <circle cx="40" cy="32" r="5" fill="#fff"/><circle cx="60" cy="32" r="5" fill="#fff"/>
+          <circle cx="40" cy="32" r="2.4" fill="#3a3226"/><circle cx="60" cy="32" r="2.4" fill="#3a3226"/>
+          <rect x="20" y="50" width="60" height="36" rx="8" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="3"/>
+          <rect x="34" y="60" width="32" height="16" rx="3" fill="#fff" opacity="0.5"/>
+          <rect x="8" y="54" width="12" height="26" rx="5" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="2.5"/>
+          <rect x="80" y="54" width="12" height="26" rx="5" fill="var(--hellblau)" stroke="var(--hellblau-dark)" stroke-width="2.5"/></svg>`;
+      case 'zug':
+        return `<svg viewBox="0 0 100 100"><rect x="10" y="44" width="34" height="30" rx="4" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+          <rect x="18" y="26" width="14" height="20" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/>
+          <rect x="46" y="52" width="40" height="22" rx="4" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="3"/>
+          <circle cx="22" cy="80" r="8" fill="#3a3226"/><circle cx="40" cy="80" r="8" fill="#3a3226"/>
+          <circle cx="58" cy="80" r="8" fill="#3a3226"/><circle cx="78" cy="80" r="8" fill="#3a3226"/>
+          <rect x="14" y="52" width="10" height="10" fill="#eaf6fa"/></svg>`;
+      default: return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="var(--muted)"/></svg>`;
+    }
+  }
+  function buildToyIcon(key){
+    const wrap = document.createElement('div');
+    wrap.className = 'toy-icon';
+    wrap.innerHTML = toySvg(key);
+    return wrap;
+  }
+  function pickToys(n, opts){
+    opts = opts||{};
+    const pool = shuffle(TOY_DEFS.slice());
+    return pool.slice(0, n).map(def => {
+      let price;
+      if(opts.priceFilter){ price = pick(def.prices.filter(opts.priceFilter)); if(price===undefined) price = pick(def.prices); }
+      else price = pick(def.prices);
+      return { key:def.key, name:def.name, price };
+    });
+  }
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+  const state = {
+    mode: null, sub: null,
+    soundOn: true,
+    progress: 0, locked: false, currentTask: null,
+    usedPrompts: []
+  };
+  let taskSelection = null;
+
+  let pendingTimers = [];
+  function after(ms, fn){
+    const id = setTimeout(()=>{
+      pendingTimers = pendingTimers.filter(t=>t!==id);
+      try{ fn(); }
+      catch(err){ state.locked = false; }
+    }, ms);
+    pendingTimers.push(id);
+    return id;
+  }
+  function clearPendingTimers(){ pendingTimers.forEach(id=>clearTimeout(id)); pendingTimers=[]; }
+  let lockedSince = null;
+  setInterval(() => {
+    if(state.locked){ if(lockedSince===null) lockedSince = Date.now(); else if(Date.now()-lockedSince > 5000){ state.locked=false; lockedSince=null; } }
+    else lockedSince = null;
+  }, 500);
+
+  const els = {
+    screenStart: document.getElementById('screen-start'),
+    screenSub: document.getElementById('screen-sub'),
+    screenGame: document.getElementById('screen-game'),
+    screenEnd: document.getElementById('screen-end'),
+    btnSound: document.getElementById('btn-sound'),
+    modeGrid: document.getElementById('mode-grid'),
+    subTitle: document.getElementById('sub-title'),
+    subChoices: document.getElementById('sub-choices'),
+    btnSubBack: document.getElementById('btn-sub-back'),
+    btnGameBack: document.getElementById('btn-game-back'),
+    progressBaskets: document.getElementById('progress-baskets'),
+    progressCount: document.getElementById('progress-count'),
+    promptText: document.getElementById('prompt-text'),
+    btnSpeakTask: document.getElementById('btn-speak-task'),
+    taskBody: document.getElementById('task-body'),
+    feedbackMsg: document.getElementById('feedback-msg'),
+    endToysRow: document.getElementById('end-toys-row'),
+  };
+
+  /* =========================================================
+     SPRACHAUSGABE
+     ========================================================= */
+  function speak(text){
+    try{
+      if(!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'de-DE'; u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+    }catch(err){}
+  }
+  function setPrompt(text, spokenText){
+    els.promptText.textContent = text;
+    const toSpeak = spokenText || text;
+    els.btnSpeakTask.onclick = () => speak(toSpeak);
+  }
+  function showFeedback(msg, good){
+    els.feedbackMsg.textContent = msg;
+    els.feedbackMsg.classList.toggle('good', !!good);
+    els.feedbackMsg.classList.add('show');
+  }
+  function triggerWrongEl(el){ el.classList.add('wrong-shake'); after(420, ()=>el.classList.remove('wrong-shake')); }
+  const GOOD_FEEDBACK = ['Richtig!','Super!','Genau!','Das stimmt!','Klasse gemacht!'];
+  const BAD_FEEDBACK = ['Fast! Schau dir das Geld noch einmal genau an.','Probier es noch einmal.','Fast geschafft!'];
+
+  /* =========================================================
+     MODUS-DEFINITIONEN (Startbildschirm)
+     ========================================================= */
+  const MODES = [
+    { key:'muenzen', cls:'c-m1', title:'🪙 Münzen', sub:'Geld erkennen', icon:'muenzen',
+      subChoices:[ {key:'euro', label:'Euro-Münzen'}, {key:'cent', label:'Cent-Münzen'}, {key:'alle', label:'Alle Münzen'} ] },
+    { key:'scheine', cls:'c-m2', title:'💶 Scheine', sub:'Geld erkennen', icon:'scheine', subChoices:null },
+    { key:'scheine-muenzen', cls:'c-m3', title:'👛 Scheine & Münzen', sub:'Geld zusammenzählen', icon:'geldboerse',
+      subChoices:[ {key:'ganz', label:'Ganze Euro'}, {key:'euroCent', label:'Euro & Cent'} ] },
+    { key:'bezahlen', cls:'c-m4', title:'💰 Bezahle passend!', sub:'Preis legen', icon:'kasse',
+      subChoices:[ {key:'ganz', label:'Ganze Euro'}, {key:'euroCent', label:'Euro & Cent'} ] },
+    { key:'einkaufskorb', cls:'c-m5', title:'🛒 Einkaufskorb', sub:'Preise addieren', icon:'korb',
+      subChoices:[ {key:'ganz', label:'Ganze Euro'}, {key:'euroCent', label:'Euro & Cent'} ] },
+    { key:'reicht', cls:'c-m6', title:'👛 Reicht dein Geld?', sub:'Vergleichen', icon:'geldboerse2',
+      subChoices:[ {key:'ganz', label:'Ganze Euro'}, {key:'euroCent', label:'Euro & Cent'} ] },
+    { key:'wechselgeld', cls:'c-m7', title:'🧾 Wechselgeld', sub:'Rückgeld berechnen', icon:'kassenbon',
+      subChoices:[ {key:'ganz', label:'Ganze Euro'}, {key:'euroCent', label:'Euro & Cent'} ] },
+    { key:'auftrag', cls:'c-m8', title:'🎁 Einkaufsauftrag', sub:'Kombinieren', icon:'geschenk', subChoices:null },
+  ];
+
+  function modeIconSvg(key){
+    switch(key){
+      case 'muenzen': return `<svg viewBox="0 0 100 100"><circle class="coin-ring" cx="42" cy="58" r="28" fill="#e0b84a" stroke="#c99a1f" stroke-width="4"/><circle cx="62" cy="38" r="28" fill="#fbe08a" stroke="#c99a1f" stroke-width="4"/><text x="62" y="46" text-anchor="middle" font-size="20" font-weight="800" fill="#5a4315">€</text></svg>`;
+      case 'scheine': return `<svg viewBox="0 0 100 100"><rect x="12" y="34" width="68" height="38" rx="6" fill="#8fb9c9" stroke="#5f93a6" stroke-width="4" transform="rotate(-6 46 53)"/><rect x="22" y="30" width="68" height="38" rx="6" fill="#eec14a" stroke="#c99a1f" stroke-width="4"/></svg>`;
+      case 'geldboerse': return `<svg viewBox="0 0 100 100"><path d="M15,40 Q15,25 40,25 L60,25 Q85,25 85,40 L85,75 Q85,85 75,85 L25,85 Q15,85 15,75 Z" fill="var(--altrosa)" stroke="var(--altrosa-dark)" stroke-width="4"/><circle cx="50" cy="55" r="8" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="2.5"/></svg>`;
+      case 'kasse': return `<svg viewBox="0 0 100 100"><rect x="16" y="46" width="68" height="34" rx="5" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="4"/><rect x="26" y="28" width="48" height="22" rx="4" fill="#fdf8ec" stroke="var(--terrakotta-dark)" stroke-width="3"/><circle cx="30" cy="86" r="6" fill="#3a3226"/><circle cx="70" cy="86" r="6" fill="#3a3226"/></svg>`;
+      case 'korb': return `<svg viewBox="0 0 100 100"><path d="M20,42 L80,42 L72,84 Q70,90 63,90 L37,90 Q30,90 28,84 Z" fill="none" stroke="var(--wood-dark)" stroke-width="5"/><path d="M20,42 L80,42" stroke="var(--wood-dark)" stroke-width="5"/><path d="M34,42 Q34,18 50,18 Q66,18 66,42" fill="none" stroke="var(--wood-dark)" stroke-width="5"/><circle cx="42" cy="60" r="9" fill="var(--terrakotta)"/><circle cx="60" cy="64" r="9" fill="var(--hellblau)"/></svg>`;
+      case 'geldboerse2': return `<svg viewBox="0 0 100 100"><ellipse cx="50" cy="60" rx="36" ry="28" fill="var(--salbei)" stroke="var(--salbei-dark)" stroke-width="4"/><path d="M20,50 Q50,30 80,50" fill="none" stroke="var(--salbei-dark)" stroke-width="4"/><circle cx="50" cy="60" r="7" fill="var(--gelb)"/></svg>`;
+      case 'kassenbon': return `<svg viewBox="0 0 100 100"><path d="M28,10 L72,10 L72,88 L64,82 L56,88 L48,82 L40,88 L32,82 L28,88 Z" fill="#fdf8ec" stroke="var(--muted)" stroke-width="3"/><line x1="36" y1="28" x2="64" y2="28" stroke="var(--muted)" stroke-width="3"/><line x1="36" y1="40" x2="64" y2="40" stroke="var(--muted)" stroke-width="3"/><line x1="36" y1="52" x2="56" y2="52" stroke="var(--muted)" stroke-width="3"/></svg>`;
+      case 'geschenk': return `<svg viewBox="0 0 100 100"><rect x="18" y="42" width="64" height="44" fill="var(--altrosa)" stroke="var(--altrosa-dark)" stroke-width="4"/><rect x="18" y="42" width="64" height="14" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="3"/><rect x="44" y="42" width="12" height="44" fill="var(--gelb)"/><path d="M50,42 Q30,20 20,32 Q14,42 30,42 Z" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="2.5"/><path d="M50,42 Q70,20 80,32 Q86,42 70,42 Z" fill="var(--gelb)" stroke="var(--gelb-dark)" stroke-width="2.5"/></svg>`;
+      default: return `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="var(--muted)"/></svg>`;
+    }
+  }
+
+  function buildStartScreen(){
+    els.modeGrid.innerHTML = '';
+    MODES.forEach(m => {
+      const card = document.createElement('button');
+      card.className = 'mode-card ' + m.cls;
+      card.innerHTML = `<div class="mode-icon">${modeIconSvg(m.icon)}</div><div class="mode-title">${m.title}</div><div class="mode-sub">${m.sub}</div>`;
+      card.addEventListener('click', () => onModeCardClick(m));
+      els.modeGrid.appendChild(card);
+    });
+  }
+
+  function onModeCardClick(modeDef){
+    state.mode = modeDef.key;
+    if(modeDef.subChoices){
+      showSubScreen(modeDef);
+    } else {
+      state.sub = null;
+      startRound();
+    }
+  }
+
+  function showSubScreen(modeDef){
+    els.subTitle.textContent = modeDef.title;
+    els.subChoices.innerHTML = '';
+    modeDef.subChoices.forEach(sc => {
+      const card = document.createElement('button');
+      card.className = 'sub-card';
+      card.innerHTML = `<span>${sc.label}</span>`;
+      card.addEventListener('click', () => { state.sub = sc.key; startRound(); });
+      els.subChoices.appendChild(card);
+    });
+    els.screenStart.hidden = true;
+    els.screenSub.hidden = false;
+  }
+
+  els.btnSubBack.addEventListener('click', () => {
+    els.screenSub.hidden = true;
+    els.screenStart.hidden = false;
+  });
+  els.btnGameBack.addEventListener('click', () => {
+    clearPendingTimers();
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    els.screenGame.hidden = true;
+    els.screenStart.hidden = false;
+  });
+  els.btnSound.addEventListener('click', () => {
+    state.soundOn = !state.soundOn;
+    els.btnSound.textContent = state.soundOn ? '🔊' : '🔇';
+    els.btnSound.setAttribute('aria-pressed', String(state.soundOn));
+  });
+
+  /* =========================================================
+     FORTSCHRITT / RUNDE
+     ========================================================= */
+  function buildProgressBaskets(){
+    els.progressBaskets.innerHTML = '';
+    for(let i=0;i<ROUND_TARGET;i++){
+      const b = document.createElement('div');
+      b.className = 'basket-icon';
+      b.innerHTML = `<svg viewBox="0 0 100 100"><path d="M20,42 L80,42 L72,84 Q70,90 63,90 L37,90 Q30,90 28,84 Z" fill="var(--terrakotta)" stroke="var(--terrakotta-dark)" stroke-width="6"/><path d="M34,42 Q34,18 50,18 Q66,18 66,42" fill="none" stroke="var(--terrakotta-dark)" stroke-width="6"/></svg>`;
+      els.progressBaskets.appendChild(b);
+    }
+  }
+  function onTaskSuccess(){
+    state.progress = Math.min(ROUND_TARGET, state.progress+1);
+    els.progressCount.textContent = state.progress;
+    const baskets = els.progressBaskets.children;
+    if(baskets[state.progress-1]) baskets[state.progress-1].classList.add('lit');
+    if(state.progress >= ROUND_TARGET) after(500, endRound);
+    else after(400, () => newTask());
+  }
+
+  function startRound(){
+    clearPendingTimers();
+    try{ window.speechSynthesis && window.speechSynthesis.cancel(); }catch(e){}
+    state.progress = 0; state.locked = false; state.usedPrompts = [];
+    els.screenStart.hidden = true; els.screenSub.hidden = true; els.screenEnd.hidden = true;
+    els.screenGame.hidden = false;
+    els.progressCount.textContent = '0';
+    buildProgressBaskets();
+    newTask();
+  }
+  function endRound(){
+    clearPendingTimers();
+    els.screenGame.hidden = true; els.screenEnd.hidden = false;
+    els.endToysRow.innerHTML = '';
+    const toys = shuffle(TOY_DEFS.slice()).slice(0,4);
+    toys.forEach(t => { const icon = buildToyIcon(t.key); icon.style.width='52px'; icon.style.height='52px'; els.endToysRow.appendChild(icon); });
+    sndWin();
+    runConfetti();
+  }
+  document.getElementById('btn-again').addEventListener('click', () => { els.screenEnd.hidden = true; startRound(); });
+  document.getElementById('btn-other-mode').addEventListener('click', () => {
+    els.screenEnd.hidden = true; els.screenStart.hidden = false;
+  });
+
+  /* =========================================================
+     SOUND
+     ========================================================= */
+  let actx = null;
+  function ensureAudio(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+  document.addEventListener('pointerdown', ensureAudio, { once:true });
+  function tone(freq, dur, type, gainPeak, delay){
+    if(!state.soundOn || !actx) return;
+    try{
+      const t0 = actx.currentTime + (delay||0);
+      const osc = actx.createOscillator(); const gain = actx.createGain();
+      osc.type = type||'sine'; osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(0, t0); gain.gain.linearRampToValueAtTime(gainPeak||0.14, t0+0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+      osc.connect(gain).connect(actx.destination); osc.start(t0); osc.stop(t0+dur+0.03);
+    }catch(err){}
+  }
+  function sndWin(){ [523,659,784,1046,1318].forEach((f,i)=>tone(f,0.3,'triangle',0.13,i*0.11)); }
+
+  function runConfetti(){
+    const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:30;';
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    const colors = ['#d98a92','#8fa888','#eec14a','#d97e55','#8fb9c9'];
+    const pieces = Array.from({length:90}, () => ({
+      x: Math.random()*canvas.width, y:-20-Math.random()*canvas.height*0.5,
+      w:4+Math.random()*6, h:6+Math.random()*10, vy:2+Math.random()*3, vx:-1+Math.random()*2,
+      rot:Math.random()*360, vr:-6+Math.random()*12, color: colors[Math.floor(Math.random()*colors.length)]
+    }));
+    let frames = 0;
+    function loop(){
+      frames++;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      pieces.forEach(p=>{
+        p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+        ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();
+      });
+      if(frames<200) requestAnimationFrame(loop);
+      else canvas.remove();
+    }
+    loop();
+  }
+
+  /* =========================================================
+     AUFGABEN-GENERATOREN
+     ========================================================= */
+  function genMuenzenTask(sub){
+    let pool;
+    if(sub==='euro') pool = EURO_COIN_VALUES;
+    else if(sub==='cent') pool = CENT_COIN_VALUES;
+    else pool = COIN_VALUES;
+    const count = pool.length<=2 ? randInt(1,3) : randInt(1,4);
+    const coins = [];
+    for(let i=0;i<count;i++) coins.push(pick(pool));
+    const total = sumMoney(coins);
+    const deltaPool = sub==='cent' ? [-20,-10,-5,5,10,20] : [-100,-50,50,100,200];
+    const minVal = 1;
+    const options = uniqueMoneyDistractors(total, 3, deltaPool, minVal);
+    return { kind:'muenzen', items:coins, total, options, sceneName:'Münzen' };
+  }
+
+  function genScheineTask(){
+    const count = randInt(1,3);
+    const bills = [];
+    for(let i=0;i<count;i++) bills.push(pick(BILL_VALUES));
+    const total = sumMoney(bills);
+    const options = uniqueMoneyDistractors(total, 3, [-1000,-500,500,1000,2000], 500);
+    return { kind:'scheine', items:bills, total, options, sceneName:'Scheine' };
+  }
+
+  function genScheineMuenzenTask(sub){
+    const coinPool = sub==='ganz' ? EURO_COIN_VALUES : COIN_VALUES;
+    const billCount = randInt(1,2);
+    const coinCount = randInt(1,2);
+    const items = [];
+    for(let i=0;i<billCount;i++) items.push(pick(BILL_VALUES));
+    for(let i=0;i<coinCount;i++) items.push(pick(coinPool));
+    const total = sumMoney(items);
+    const deltaPool = sub==='ganz' ? [-200,-100,100,200,500] : [-50,-20,-10,10,20,50,100];
+    const options = uniqueMoneyDistractors(total, 3, deltaPool, 100);
+    return { kind:'scheineMuenzen', items, total, options, sceneName:'Scheine & Münzen' };
+  }
+
+  function priceIsGanzEuro(p){ return p % 100 === 0; }
+  function roundCentPrice(p){
+    // rundet auf 10-Cent-Schritte, behaelt Ganze-Euro-Preise wie sie sind
+    return Math.round(p/10)*10;
+  }
+
+  function genBezahlenTask(sub){
+    let toy;
+    if(sub==='ganz'){
+      toy = pick(pickToys(1, { priceFilter: p => priceIsGanzEuro(p) && p>=200 && p<=3000 }));
+      if(!toy || !priceIsGanzEuro(toy.price)){
+        const base = TOY_DEFS[randInt(0,TOY_DEFS.length-1)];
+        const p = pick(base.prices.filter(priceIsGanzEuro)) || Math.round(base.prices[0]/100)*100;
+        toy = { key:base.key, name:base.name, price:p };
+      }
+    } else {
+      const base = TOY_DEFS[randInt(0,TOY_DEFS.length-1)];
+      toy = { key:base.key, name:base.name, price: pick(base.prices) };
+    }
+    const availableCoins = sub==='ganz' ? EURO_COIN_VALUES : COIN_VALUES;
+    const availableBills = BILL_VALUES;
+    return { kind:'bezahlen', toy, sub, availableCoins, availableBills, sceneName:'Bezahle passend!' };
+  }
+
+  function genEinkaufskorbTask(sub){
+    const n = Math.random()<0.25 ? 3 : 2;
+    const shelfCount = Math.max(n+2, 4);
+    const filter = sub==='ganz' ? (p=>priceIsGanzEuro(p)) : undefined;
+    const shelf = pickToys(shelfCount, { priceFilter: filter });
+    const chosenIdx = shuffle(shelf.map((_,i)=>i)).slice(0,n);
+    const chosen = chosenIdx.map(i=>shelf[i]);
+    const total = sumMoney(chosen.map(t=>t.price));
+    const deltaPool = sub==='ganz' ? [-300,-200,-100,100,200,300] : [-150,-100,-50,50,100,150];
+    const options = uniqueMoneyDistractors(total, 3, deltaPool, 100);
+    return { kind:'einkaufskorb', shelf, chosen, total, options, sceneName:'Einkaufskorb' };
+  }
+
+  function genReichtTask(sub){
+    const filter = sub==='ganz' ? (p=>priceIsGanzEuro(p)) : undefined;
+    const n = Math.random()<0.3 ? 1 : 2;
+    const toys = pickToys(n, { priceFilter: filter });
+    const total = sumMoney(toys.map(t=>t.price));
+    const scenario = pick(['genau','rest','nicht']);
+    let budget;
+    if(scenario==='genau') budget = total;
+    else if(scenario==='rest'){
+      const extra = sub==='ganz' ? pick([100,200,300,500]) : pick([50,100,150,200]);
+      budget = total + extra;
+    } else {
+      const less = sub==='ganz' ? pick([100,200,300]) : pick([50,100,150]);
+      budget = Math.max(sub==='ganz'?100:50, total - less);
+      if(budget>=total) budget = Math.max(sub==='ganz'?100:50, total-(sub==='ganz'?100:50));
+    }
+    const answer = budget >= total;
+    return { kind:'reicht', toys, total, budget, answer, sceneName:'Reicht dein Geld?' };
+  }
+
+  function genWechselgeldTask(sub){
+    const filter = sub==='ganz' ? (p=>priceIsGanzEuro(p)) : undefined;
+    const base = TOY_DEFS[randInt(0,TOY_DEFS.length-1)];
+    let price = filter ? (base.prices.find(filter) || base.prices[0]) : pick(base.prices);
+    if(sub!=='ganz'){
+      // bevorzugt 10/20/50-Cent-Schritte, aber realistische Preise aus dem Pool nutzen
+      price = pick(base.prices);
+    }
+    const toy = { key:base.key, name:base.name, price };
+    let paidOptions;
+    if(sub==='ganz'){
+      paidOptions = BILL_VALUES.concat(EURO_COIN_VALUES).filter(v=>v>price);
+      if(paidOptions.length===0) paidOptions=[Math.ceil(price/500+1)*500];
+    } else {
+      paidOptions = BILL_VALUES.filter(v=>v>price);
+      if(paidOptions.length===0) paidOptions=[5000];
+    }
+    const paid = pick(paidOptions);
+    const change = paid - price;
+    const deltaPool = sub==='ganz' ? [-200,-100,100,200,300] : [-100,-50,-20,20,50,100];
+    const options = uniqueMoneyDistractors(change, 3, deltaPool, 0);
+    return { kind:'wechselgeld', toy, paid, change, options, sceneName:'Wechselgeld' };
+  }
+
+  function genAuftragTask(){
+    let attempt=0, task=null;
+    while(attempt<40 && !task){
+      attempt++;
+      const shelfCount = randInt(4,6);
+      const shelf = pickToys(shelfCount);
+      const type = pick(['budget','exact','budgetB']);
+      if(type==='exact'){
+        // Suche ein Paar mit exakter Summe unter den Shelf-Preisen selbst (garantiert loesbar)
+        let found=null;
+        for(let i=0;i<shelf.length && !found;i++){
+          for(let j=i+1;j<shelf.length;j++){
+            const s=shelf[i].price+shelf[j].price;
+            if(s%100===0 && s>=500 && s<=2500){ found=s; break; }
+          }
+        }
+        if(!found) continue;
+        task = { kind:'auftrag', type:'exact', shelf, target:found, prompt:`Finde zwei Spielzeuge für genau ${formatMoney(found)}.`, sceneName:'Einkaufsauftrag' };
+      } else {
+        const budget = pick([800,1000,1200,1500,2000]);
+        const hasPair = shelf.some((a,i)=>shelf.some((b,j)=> j>i && a.price+b.price<=budget));
+        if(!hasPair) continue;
+        const promptText = type==='budget'
+          ? `Du hast ${formatMoney(budget)}. Finde zwei Spielzeuge, die du kaufen kannst.`
+          : `Du hast ${formatMoney(budget)}. Welche zwei kannst du kaufen, ohne mehr auszugeben?`;
+        task = { kind:'auftrag', type:'budget', shelf, budget, prompt:promptText, sceneName:'Einkaufsauftrag' };
+      }
+    }
+    if(!task){
+      // Sicherer Rueckfall: zwei guenstige feste Spielzeuge, garantiert loesbar
+      const shelf = [ {key:'ball',name:'Ball',price:300}, {key:'seil',name:'Springseil',price:300}, {key:'teddy',name:'Teddy',price:600}, {key:'auto',name:'Auto',price:400} ];
+      task = { kind:'auftrag', type:'budget', shelf, budget:800, prompt:'Du hast 8 €. Finde zwei Spielzeuge, die du kaufen kannst.', sceneName:'Einkaufsauftrag' };
+    }
+    return task;
+  }
+
+  function pickGenerator(){
+    switch(state.mode){
+      case 'muenzen': return genMuenzenTask(state.sub);
+      case 'scheine': return genScheineTask();
+      case 'scheine-muenzen': return genScheineMuenzenTask(state.sub);
+      case 'bezahlen': return genBezahlenTask(state.sub);
+      case 'einkaufskorb': return genEinkaufskorbTask(state.sub);
+      case 'reicht': return genReichtTask(state.sub);
+      case 'wechselgeld': return genWechselgeldTask(state.sub);
+      case 'auftrag': return genAuftragTask();
+    }
+  }
+
+  /* =========================================================
+     RENDER-HILFEN
+     ========================================================= */
+  function renderMoneyRow(container, values){
+    container.innerHTML = '';
+    container.className = 'money-display-row';
+    values.forEach(v => container.appendChild(makeMoneyEl(v)));
+  }
+  function renderChoiceRow(container, options, correct, onCorrectCb){
+    container.innerHTML = '';
+    container.className = 'choice-row';
+    options.forEach(opt => {
+      const card = document.createElement('button');
+      card.className = 'choice-card';
+      card.textContent = formatMoney(opt);
+      card.addEventListener('click', () => {
+        if(state.locked) return;
+        if(opt === correct){
+          state.locked = true;
+          card.classList.add('correct-pulse');
+          showFeedback(pick(GOOD_FEEDBACK), true);
+          after(650, onCorrectCb);
+        } else {
+          triggerWrongEl(card);
+          showFeedback(pick(BAD_FEEDBACK));
+        }
+      });
+      container.appendChild(card);
+    });
+  }
+
+  /* =========================================================
+     AUFGABE RENDERN
+     ========================================================= */
+  function newTask(forcedTask){
+    state.locked = false;
+    els.feedbackMsg.classList.remove('show','good');
+    els.feedbackMsg.textContent = '';
+    const task = forcedTask || pickGenerator();
+    state.currentTask = task;
+    els.taskBody.innerHTML = '';
+    taskSelection = null;
+
+    if(task.kind==='muenzen' || task.kind==='scheine' || task.kind==='scheineMuenzen'){
+      const label = task.kind==='scheine' ? 'Wie viel Geld ist das?' : 'Wie viel Geld ist das?';
+      setPrompt(label);
+      const row = document.createElement('div');
+      els.taskBody.appendChild(row);
+      renderMoneyRow(row, task.items);
+      const choiceRow = document.createElement('div');
+      els.taskBody.appendChild(choiceRow);
+      renderChoiceRow(choiceRow, task.options, task.total, onTaskSuccess);
+    }
+
+    else if(task.kind==='bezahlen'){
+      setPrompt(`Bezahle ${formatMoney(task.toy.price)}.`);
+      taskSelection = { laid: [] };
+      const target = document.createElement('div');
+      target.className = 'pay-target';
+      target.appendChild(buildToyIcon(task.toy.key));
+      const priceTag = document.createElement('div'); priceTag.className='price-tag'; priceTag.textContent = formatMoney(task.toy.price);
+      target.appendChild(priceTag);
+      els.taskBody.appendChild(target);
+
+      const totalEl = document.createElement('div');
+      totalEl.className = 'laid-total';
+      els.taskBody.appendChild(totalEl);
+
+      const tresen = document.createElement('div');
+      tresen.className = 'tresen';
+      els.taskBody.appendChild(tresen);
+
+      const geldleiste = document.createElement('div');
+      geldleiste.className = 'geldleiste';
+      els.taskBody.appendChild(geldleiste);
+
+      const btnRow = document.createElement('div');
+      btnRow.className = 'pay-btn-row';
+      const resetBtn = document.createElement('button');
+      resetBtn.className = 'reset-btn';
+      resetBtn.innerHTML = '<span class="reset-icon">↺</span><span>Zurücksetzen</span>';
+      resetBtn.setAttribute('aria-label', 'Alles zurücklegen');
+      const payBtn = document.createElement('button');
+      payBtn.className = 'pay-btn';
+      payBtn.textContent = 'Bezahlen';
+      payBtn.disabled = true;
+      btnRow.appendChild(resetBtn);
+      btnRow.appendChild(payBtn);
+      els.taskBody.appendChild(btnRow);
+
+      function updateDisplay(){
+        const total = sumMoney(taskSelection.laid);
+        totalEl.innerHTML = `Du hast gelegt: <span class="laid-num">${formatMoney(total)}</span>`;
+        tresen.innerHTML = '';
+        if(taskSelection.laid.length===0){
+          const hint = document.createElement('div'); hint.className='tresen-empty-hint'; hint.textContent='Tippe unten Geld an';
+          tresen.appendChild(hint);
+        } else {
+          taskSelection.laid.forEach((v, idx) => {
+            const el = makeMoneyEl(v, {size: v<500 ? Math.max(24,coinSize(v)-8) : null, tag:'button'});
+            el.classList.add('money-mini');
+            if(v>=500){ el.style.width = (billSize(v).w*0.72)+'px'; el.style.height=(billSize(v).h*0.72)+'px'; }
+            el.setAttribute('aria-label', `${formatMoney(v)} entfernen`);
+            el.addEventListener('click', () => { taskSelection.laid.splice(idx,1); updateDisplay(); });
+            tresen.appendChild(el);
+          });
+        }
+        payBtn.disabled = taskSelection.laid.length===0;
+      }
+
+      const allDenoms = task.availableCoins.concat(task.availableBills);
+      allDenoms.forEach(v => {
+        const btn = makeMoneyEl(v, {tag:'button'});
+        btn.classList.add('money-btn');
+        btn.setAttribute('aria-label', `${formatMoney(v)} hinzufügen`);
+        btn.addEventListener('click', () => { taskSelection.laid.push(v); updateDisplay(); });
+        geldleiste.appendChild(btn);
+      });
+
+      resetBtn.addEventListener('click', () => {
+        taskSelection.laid = [];
+        updateDisplay();
+      });
+
+      payBtn.addEventListener('click', () => {
+        if(state.locked) return;
+        const total = sumMoney(taskSelection.laid);
+        if(total === task.toy.price){
+          state.locked = true;
+          showFeedback(pick(GOOD_FEEDBACK), true);
+          after(650, onTaskSuccess);
+        } else {
+          triggerWrongEl(payBtn);
+          showFeedback(total > task.toy.price ? 'Das ist zu viel.' : 'Das ist noch zu wenig.');
+        }
+      });
+      updateDisplay();
+    }
+
+    else if(task.kind==='einkaufskorb'){
+      const names = task.chosen.map(t=>t.name).join(' und ');
+      setPrompt(`Kaufe ${names}. Wie viel kostet das zusammen?`, `Kaufe ${names}. Wie viel kostet das zusammen?`);
+      const shelf = document.createElement('div');
+      shelf.className = 'toy-shelf';
+      task.shelf.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'toy-card';
+        if(task.chosen.includes(t)) card.classList.add('selected');
+        card.appendChild(buildToyIcon(t.key));
+        const p = document.createElement('div'); p.className='toy-price'; p.textContent = formatMoney(t.price);
+        card.appendChild(p);
+        shelf.appendChild(card);
+      });
+      els.taskBody.appendChild(shelf);
+      const board = document.createElement('div'); board.className='shelf-board'; els.taskBody.appendChild(board);
+      const choiceRow = document.createElement('div');
+      els.taskBody.appendChild(choiceRow);
+      renderChoiceRow(choiceRow, task.options, task.total, onTaskSuccess);
+    }
+
+    else if(task.kind==='reicht'){
+      const budgetLine = `Du hast ${formatMoney(task.budget)}.`;
+      setPrompt('Reicht dein Geld?', `${budgetLine} Reicht dein Geld?`);
+      const budgetEl = document.createElement('div');
+      budgetEl.className = 'auftrag-budget';
+      budgetEl.textContent = budgetLine;
+      els.taskBody.appendChild(budgetEl);
+      const shelf = document.createElement('div'); shelf.className='toy-shelf';
+      task.toys.forEach(t => {
+        const card = document.createElement('div'); card.className='toy-card';
+        card.appendChild(buildToyIcon(t.key));
+        const p = document.createElement('div'); p.className='toy-price'; p.textContent = formatMoney(t.price);
+        card.appendChild(p);
+        shelf.appendChild(card);
+      });
+      els.taskBody.appendChild(shelf);
+      const row = document.createElement('div'); row.className='yesno-row';
+      els.taskBody.appendChild(row);
+      function answer(val, btn){
+        if(state.locked) return;
+        if(val === task.answer){
+          state.locked = true;
+          btn.classList.add('correct-pulse');
+          const totalTxt = formatMoney(sumMoney(task.toys.map(t=>t.price)));
+          showFeedback(task.answer ? `Ja! Dein Einkauf kostet ${totalTxt}.` : `Noch nicht. Dein Einkauf kostet ${totalTxt}.`, true);
+          after(1100, onTaskSuccess);
+        } else {
+          triggerWrongEl(btn);
+          showFeedback(pick(BAD_FEEDBACK));
+        }
+      }
+      const yesBtn = document.createElement('button'); yesBtn.className='yesno-btn yes'; yesBtn.textContent='JA';
+      const noBtn = document.createElement('button'); noBtn.className='yesno-btn no'; noBtn.textContent='NEIN';
+      yesBtn.addEventListener('click', ()=>answer(true, yesBtn));
+      noBtn.addEventListener('click', ()=>answer(false, noBtn));
+      row.appendChild(yesBtn); row.appendChild(noBtn);
+    }
+
+    else if(task.kind==='wechselgeld'){
+      setPrompt('Wie viel bekommst du zurück?');
+      const row = document.createElement('div'); row.className='single-toy-row';
+      row.appendChild(buildToyIcon(task.toy.key));
+      const info = document.createElement('div');
+      info.innerHTML = `<div class="single-toy-price">${formatMoney(task.toy.price)}</div><div style="font-size:clamp(11px,1.6vw,13px); color:var(--muted); font-weight:700; margin-top:4px;">Bezahlt mit ${formatMoney(task.paid)}</div>`;
+      row.appendChild(info);
+      els.taskBody.appendChild(row);
+      const choiceRow = document.createElement('div');
+      els.taskBody.appendChild(choiceRow);
+      renderChoiceRow(choiceRow, task.options, task.change, onTaskSuccess);
+    }
+
+    else if(task.kind==='auftrag'){
+      setPrompt(task.prompt);
+      taskSelection = { chosen: new Set() };
+      const shelf = document.createElement('div'); shelf.className='toy-shelf';
+      const cards = [];
+      task.shelf.forEach((t,idx) => {
+        const card = document.createElement('button');
+        card.className = 'toy-card selectable';
+        card.appendChild(buildToyIcon(t.key));
+        const p = document.createElement('div'); p.className='toy-price'; p.textContent = formatMoney(t.price);
+        card.appendChild(p);
+        card.addEventListener('click', () => {
+          if(state.locked) return;
+          if(taskSelection.chosen.has(idx)){ taskSelection.chosen.delete(idx); card.classList.remove('selected'); }
+          else if(taskSelection.chosen.size < 2){ taskSelection.chosen.add(idx); card.classList.add('selected'); }
+          updateSelTotal();
+        });
+        cards.push(card);
+        shelf.appendChild(card);
+      });
+      els.taskBody.appendChild(shelf);
+      const board = document.createElement('div'); board.className='shelf-board'; els.taskBody.appendChild(board);
+      const selTotal = document.createElement('div'); selTotal.className='auftrag-selection-total';
+      els.taskBody.appendChild(selTotal);
+      function updateSelTotal(){
+        if(taskSelection.chosen.size===0){ selTotal.textContent=''; checkBtn.disabled=true; return; }
+        const sum = Array.from(taskSelection.chosen).reduce((a,i)=>a+task.shelf[i].price,0);
+        selTotal.textContent = `Ausgewählt: ${formatMoney(sum)}`;
+        checkBtn.disabled = taskSelection.chosen.size!==2;
+      }
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'pay-btn'; checkBtn.textContent='Einkauf prüfen'; checkBtn.disabled = true;
+      checkBtn.addEventListener('click', () => {
+        if(state.locked || taskSelection.chosen.size!==2) return;
+        const sum = Array.from(taskSelection.chosen).reduce((a,i)=>a+task.shelf[i].price,0);
+        let ok;
+        if(task.type==='exact') ok = sum === task.target;
+        else ok = sum <= task.budget;
+        if(ok){
+          state.locked = true;
+          checkBtn.classList.add('correct-pulse');
+          showFeedback(pick(GOOD_FEEDBACK), true);
+          after(650, onTaskSuccess);
+        } else {
+          triggerWrongEl(checkBtn);
+          showFeedback(sum > (task.type==='exact'?task.target:task.budget) ? 'Das ist zu viel.' : pick(BAD_FEEDBACK));
+        }
+      });
+      els.taskBody.appendChild(checkBtn);
+      updateSelTotal();
+    }
+  }
+
+  buildStartScreen();
+
+  window.__szDebug = {
+    state, forceTask: (t) => newTask(t), getSelection: () => taskSelection,
+    centsToEuroString, sumMoney, uniqueMoneyDistractors,
+    genMuenzenTask, genScheineTask, genScheineMuenzenTask, genBezahlenTask, genEinkaufskorbTask, genReichtTask, genWechselgeldTask, genAuftragTask,
+    setMode: (m,s) => { state.mode=m; state.sub=s; }
+  };
+
+})();
+</script>
+
+</body>
+</html>
